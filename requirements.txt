@@ -1,0 +1,18 @@
+# Core
+numpy>=1.24
+
+# Production embedding backend (Chapter Three, Section 3.2.2.2).
+# Without this the system falls back to lexical matching, which is NOT semantic.
+sentence-transformers>=2.2.0
+
+# REST API
+fastapi>=0.100
+uvicorn[standard]>=0.23
+pydantic[email]>=2.0
+
+# PostgreSQL + pgvector backend
+psycopg[binary]>=3.1
+pgvector>=0.2.0
+
+# Tests
+pytest>=7.0
