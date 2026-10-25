@@ -16,6 +16,9 @@ import json
 import logging
 import sys
 
+from dotenv import load_dotenv
+load_dotenv()  # Load .env file
+
 from .config import Settings
 from .engine import build_default_engine
 from .models import ContentType

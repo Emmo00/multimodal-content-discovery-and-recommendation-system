@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IntelliVerse Admin</title>
+  <link rel="stylesheet" href="/static/admin/styles.css">
+</head>
+<body>
+  <header class="pill-nav">
+    <a class="wordmark" href="/admin/">IntelliVerse / Admin</a>
+    <nav aria-label="Admin navigation">
+      <button class="nav-link active" data-view="overview">Overview</button>
+      <button class="nav-link" data-view="discovery">Discovery</button>
+      <button class="nav-link" data-view="content">Content</button>
+      <button class="nav-link" data-view="evaluation">Evaluation</button>
+    </nav>
+    <a class="back-link" href="/">User view</a>
+  </header>
+  <main id="app" class="shell" aria-live="polite"></main>
+  <div id="toast" class="toast" role="status"></div>
+  <script src="/static/admin/app.js" defer></script>
+</body>
+</html>

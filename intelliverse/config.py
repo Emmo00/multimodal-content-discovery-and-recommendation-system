@@ -67,6 +67,8 @@ class Settings:
     #: ...or if the best candidate is less similar than this.
     #: Cosine similarity on MiniLM embeddings; an initial value to be tuned.
     min_top_similarity: float = 0.35
+    #: Minimum similarity required for a candidate to be returned.
+    min_result_similarity: float = 0.15
     #: Ceiling on items ingested per discovery run, to bound query latency.
     discovery_limit: int = 25
 
@@ -91,6 +93,8 @@ class Settings:
             settings.top_k = int(v)
         if v := os.environ.get("INTELLIVERSE_MIN_TOP_SIMILARITY"):
             settings.min_top_similarity = float(v)
+        if v := os.environ.get("INTELLIVERSE_MIN_RESULT_SIMILARITY"):
+            settings.min_result_similarity = float(v)
         if v := os.environ.get("INTELLIVERSE_EMBEDDING_MODEL"):
             settings.embedding_model = v
         return settings

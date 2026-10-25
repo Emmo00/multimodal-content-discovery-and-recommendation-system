@@ -11,9 +11,12 @@ from __future__ import annotations
 
 from datetime import datetime
 from functools import lru_cache
+from pathlib import Path
 from typing import Literal
 
 from fastapi import Depends, FastAPI, HTTPException, Query as QueryParam
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, EmailStr, Field
 
 from .config import Settings
@@ -105,7 +108,10 @@ app = FastAPI(
     version="0.1.0",
 )
 
+FRONTEND_DIR = Path(__file__).parent / "frontend"
 
+
+@app.get("/api/health")
 @app.get("/health")
 def health(engine: IntelliVerse = Depends(get_engine)) -> dict:
     return {
@@ -116,12 +122,14 @@ def health(engine: IntelliVerse = Depends(get_engine)) -> dict:
     }
 
 
+@app.post("/api/users", response_model=UserOut, status_code=201)
 @app.post("/users", response_model=UserOut, status_code=201)
 def create_user(payload: UserCreate, engine: IntelliVerse = Depends(get_engine)) -> UserOut:
     user = engine.register_user(payload.name, str(payload.email))
     return UserOut(**user.__dict__)
 
 
+@app.get("/api/search", response_model=SearchOut)
 @app.get("/search", response_model=SearchOut)
 def search(
     q: str = QueryParam(min_length=1, description="Natural-language query"),
@@ -166,6 +174,7 @@ def search(
     )
 
 
+@app.post("/api/interactions", status_code=201)
 @app.post("/interactions", status_code=201)
 def record_interaction(
     payload: InteractionIn, engine: IntelliVerse = Depends(get_engine)
@@ -187,6 +196,7 @@ def record_interaction(
     }
 
 
+@app.get("/api/users/{user_id}/profile", response_model=ProfileOut)
 @app.get("/users/{user_id}/profile", response_model=ProfileOut)
 def get_profile(user_id: str, engine: IntelliVerse = Depends(get_engine)) -> ProfileOut:
     if engine.users.get_user(user_id) is None:
@@ -203,6 +213,7 @@ def get_profile(user_id: str, engine: IntelliVerse = Depends(get_engine)) -> Pro
     )
 
 
+@app.post("/admin/api/discover")
 @app.post("/discover")
 def discover(
     q: str = QueryParam(min_length=1),
@@ -221,3 +232,21 @@ def discover(
         "duplicates": result.duplicates,
         "corpus_size": engine.corpus_size(),
     }
+
+
+app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
+
+
+@app.get("/", include_in_schema=False)
+def user_frontend() -> FileResponse:
+    return FileResponse(FRONTEND_DIR / "user" / "index.html")
+
+
+@app.get("/admin/", include_in_schema=False)
+def admin_frontend() -> FileResponse:
+    return FileResponse(FRONTEND_DIR / "admin" / "index.html")
+
+
+from .admin_api import admin_app  # noqa: E402
+
+app.mount("/admin/api", admin_app)

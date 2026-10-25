@@ -69,7 +69,7 @@ class SentenceTransformerEmbeddingService:
 
         self._model = SentenceTransformer(model_name, device=device)
         self.model_name = model_name
-        self.dimension = int(self._model.get_sentence_embedding_dimension())
+        self.dimension = int(self._model.get_embedding_dimension())
 
     def embed(self, text: str) -> np.ndarray:
         return self.embed_batch([text])[0]

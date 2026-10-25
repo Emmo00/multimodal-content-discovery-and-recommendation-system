@@ -47,6 +47,18 @@ python -m intelliverse.cli serve                  # REST API on :8000
 pytest                                            # 41 tests
 ```
 
+The API process also serves two separate single-page interfaces:
+
+```text
+http://127.0.0.1:8000/          # User discovery and profile UI
+http://127.0.0.1:8000/admin/    # Administrative monitoring and indexing UI
+```
+
+The user UI calls the `/api/*` routes for search, profiles and feedback. The
+admin UI calls `/admin/api/*` for health, discovery, indexed-content inspection
+and ranking comparison. Both interfaces use the in-memory backend by default,
+so indexed content and profiles reset when the API process restarts.
+
 ```python
 from intelliverse import build_default_engine, InteractionType
 

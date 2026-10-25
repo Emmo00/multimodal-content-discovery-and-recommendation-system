@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IntelliVerse</title>
+  <link rel="stylesheet" href="/static/user/styles.css">
+</head>
+<body>
+  <header class="pill-nav">
+    <a class="wordmark" href="/">IntelliVerse</a>
+    <nav aria-label="User navigation">
+      <button class="nav-link active" data-view="discover">Discover</button>
+      <button class="nav-link" data-view="profile">Profile</button>
+    </nav>
+    <span id="user-chip" class="muted">Guest</span>
+  </header>
+
+  <main id="app" class="shell" aria-live="polite"></main>
+  <div id="toast" class="toast" role="status"></div>
+  <script src="/static/user/app.js" defer></script>
+</body>
+</html>
