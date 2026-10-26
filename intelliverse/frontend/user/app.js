@@ -13,6 +13,10 @@ const state = {
 
 const app = document.querySelector("#app");
 const toast = document.querySelector("#toast");
+const watchModal = document.querySelector("#watch-modal");
+const watchFrame = document.querySelector("#watch-frame");
+const watchTitle = document.querySelector("#watch-title");
+const watchClose = document.querySelector("#watch-close");
 
 async function request(path, options = {}) {
   const response = await fetch(path, { headers: { "Content-Type": "application/json" }, ...options });
@@ -82,6 +86,7 @@ function renderDiscover() {
   document.querySelectorAll("[data-type]").forEach((button) => button.addEventListener("click", () => { state.type = button.dataset.type; render(); }));
   document.querySelector("#personalised").addEventListener("change", (event) => { state.personalised = event.target.checked; });
   document.querySelector("#discovery").addEventListener("change", (event) => { state.discovery = event.target.checked; });
+  document.querySelectorAll("[data-watch-url]").forEach((button) => button.addEventListener("click", () => openWatch(button.dataset.watchUrl, button.dataset.watchTitle)));
   document.querySelectorAll("[data-action]").forEach((button) => button.addEventListener("click", () => interact(button.dataset.id, button.dataset.action, button)));
 }
 
@@ -92,15 +97,50 @@ function renderResults(response) {
 }
 
 function renderResult(result) {
+  const embedUrl = youtubeEmbedUrl(result.source_url);
+  const watchButton = embedUrl
+    ? `<button class="watch-button" type="button" data-watch-url="${escapeAttribute(embedUrl)}" data-watch-title="${escapeAttribute(result.title)}">Watch</button>`
+    : "";
   return `<article class="result-card">
     <div class="result-head"><span class="tag">${result.content_type.toUpperCase()} · ${escapeHtml(result.source_platform)}</span><span class="score">Score ${result.score.toFixed(3)}</span></div>
     <h3>${escapeHtml(result.title)}</h3><p>${escapeHtml(result.description)}</p>
     <div class="result-meta">${result.topics.map((topic) => `<span class="tag">#${escapeHtml(topic)}</span>`).join("")}</div>
     <details><summary>Why this result?</summary><p>Semantic ${result.semantic_similarity.toFixed(3)} · Profile ${result.profile_similarity.toFixed(3)} · Freshness ${result.freshness.toFixed(3)}</p></details>
-    <div class="actions"><a class="source-link" href="${escapeAttribute(result.source_url)}" target="_blank" rel="noopener noreferrer">Open original</a>
+    <div class="actions">${watchButton}<a class="source-link" href="${escapeAttribute(result.source_url)}" target="_blank" rel="noopener noreferrer">Open original</a>
       ${["like", "save", "dislike", "skip"].map((action) => `<button type="button" data-action="${action}" data-id="${result.content_id}">${action}</button>`).join("")}
     </div>
   </article>`;
+}
+
+function youtubeEmbedUrl(value) {
+  try {
+    const url = new URL(value);
+    let videoId = "";
+    if (url.hostname === "youtu.be" || url.hostname === "www.youtu.be") {
+      videoId = url.pathname.slice(1).split("/")[0];
+    } else if (url.hostname === "youtube.com" || url.hostname === "www.youtube.com" || url.hostname === "m.youtube.com") {
+      if (url.pathname === "/watch") videoId = url.searchParams.get("v") || "";
+      else if (url.pathname.startsWith("/embed/")) videoId = url.pathname.split("/")[2] || "";
+      else if (url.pathname.startsWith("/shorts/")) videoId = url.pathname.split("/")[2] || "";
+    }
+    if (!/^[\w-]{11}$/.test(videoId)) return "";
+    return `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1`;
+  } catch {
+    return "";
+  }
+}
+
+function openWatch(embedUrl, title) {
+  watchFrame.src = embedUrl;
+  watchFrame.title = title || "YouTube video player";
+  watchTitle.textContent = title || "Watch video";
+  watchModal.hidden = false;
+  watchClose.focus();
+}
+
+function closeWatch() {
+  watchModal.hidden = true;
+  watchFrame.src = "";
 }
 
 async function search(event) {
@@ -134,4 +174,7 @@ function escapeHtml(value) { return String(value).replace(/[&<>"']/g, (char) => 
 function escapeAttribute(value) { return escapeHtml(value); }
 
 document.querySelectorAll(".nav-link").forEach((button) => button.addEventListener("click", () => { state.view = button.dataset.view; state.error = null; render(); }));
+watchClose.addEventListener("click", closeWatch);
+watchModal.addEventListener("click", (event) => { if (event.target === watchModal) closeWatch(); });
+document.addEventListener("keydown", (event) => { if (event.key === "Escape" && !watchModal.hidden) closeWatch(); });
 render();
