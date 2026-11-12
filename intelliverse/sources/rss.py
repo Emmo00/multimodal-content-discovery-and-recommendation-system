@@ -221,4 +221,5 @@ DEFAULT_FEEDS: dict[str, ContentType] = {
     "https://www.sciencedaily.com/rss/computers_math/artificial_intelligence.xml": ContentType.TEXT,
     "https://feeds.megaphone.fm/hubermanlab": ContentType.AUDIO,
     "https://www.youtube.com/feeds/videos.xml?channel_id=UCbfYPyITQ-7l4upoX8nvctg": ContentType.VIDEO,
+    "https://feeds.content.dowjones.io/public/rss/mw_topstories": ContentType.TEXT
 }
